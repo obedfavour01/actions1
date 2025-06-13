@@ -3,7 +3,7 @@ name: sequence
 on: push
 
 jobs: 
-    buikd_job_1:
+    build_job_1:
         runs-on: ubuntu-22.04
         steps:
         - name: Install Cowsay Program
@@ -15,11 +15,27 @@ jobs:
         
         - name: Sleep for 30 seconds
           run: sleep 30
+        
+        
+        - name: Uploading dragon.txt
+          uses: actions/upload-artifact@v3
+          with:
+            name: dragon-text-file
+            path: dragon.txt
           
 
     test_job_2:
         runs-on: ubuntu-22.04
+        needs: build_job_1
         steps:
+
+        - name: Download dragon.txt
+          uses: actions/download-artifact@v4
+          with:
+            name: dragon-text-file
+            path: dragon.txt
+
+        
         - name: Sleep for 10 seconds
           run: sleep 10
 
@@ -27,12 +43,20 @@ jobs:
           run: grep -i "dragon" dragon.txt
 
           
-          
+
     deploy_job_3:
         runs-on: ubuntu-22.04
-        steps:
+        needs: test_job_2
+        steps:  
+
+        - name: Downloading dragon.txt
+          uses: actions/download-artifact@v4
+          with:
+            name: dragon-text-file
+            path: dragon.txt
+
         - name: Read File
           run: cat dragon.txt
 
         - name: Deploy
-          run: echo Deploying..
+          run: echo Deploying...
